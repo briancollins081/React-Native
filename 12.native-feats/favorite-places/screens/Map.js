@@ -2,20 +2,29 @@ import { useCallback, useLayoutEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import IconButton from "../components/ui/IconButton";
-const Map = ({ navigation }) => {
-    const [selectedLocation, setSelectedLoaction] = useState();
+const Map = ({ navigation, route }) => {
+    const initialLocation = route.params && {
+        lat: route.params.initialLat,
+        lng: route.params.initialLng,
+    }
+
+    const [selectedLocation, setSelectedLoaction] = useState(initialLocation);
+
+
     const initialRegion = {
-        latitude: -1.38111,
-        longitude: 36.767577,
+        latitude: initialLocation ? initialLocation.lat : -1.38111,
+        longitude: initialLocation ? initialLocation.lng : 36.767577,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     }
 
     const selectLocationHandler = (event) => {
-        const lat = event.nativeEvent.coordinate.latitude
-        const lng = event.nativeEvent.coordinate.longitude
+        if (!initialLocation) {
+            const lat = event.nativeEvent.coordinate.latitude
+            const lng = event.nativeEvent.coordinate.longitude
 
-        setSelectedLoaction({ lat, lng })
+            setSelectedLoaction({ lat, lng })
+        }
     }
 
     const savePickedLocationHandler = useCallback(() => {
@@ -27,15 +36,17 @@ const Map = ({ navigation }) => {
     }, [navigation, selectedLocation])
 
     useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: ({ tintColor }) => <IconButton
-                name="save"
-                color={tintColor}
-                size={24}
-                onPress={savePickedLocationHandler}
-            />
-        })
-    }, [navigation, savePickedLocationHandler])
+        if (!initialLocation) {
+            navigation.setOptions({
+                headerRight: ({ tintColor }) => <IconButton
+                    name="save"
+                    color={tintColor}
+                    size={24}
+                    onPress={savePickedLocationHandler}
+                />
+            })
+        }
+    }, [navigation, savePickedLocationHandler, initialLocation])
 
     return <MapView style={styles.map} initialRegion={initialRegion} onPress={selectLocationHandler}>
         {!!selectedLocation && <Marker

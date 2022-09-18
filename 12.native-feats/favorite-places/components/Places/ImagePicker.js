@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Colors } from "../../constants/colors";
 import OutlineButton from "../ui/OutlineButton";
 
-const ImagePicker = () => {
+const ImagePicker = ({ onTakeImage }) => {
     const [pickedImage, setPickedImage] = useState();
 
     const [cameraPermissionsInfo, requestCameraPermissions] = useCameraPermissions() // for IOS
@@ -34,6 +34,7 @@ const ImagePicker = () => {
                 quality: 0.5
             })
             setPickedImage(image);
+            onTakeImage(image.uri)
         } catch (error) {
             console.log(error);
         }

@@ -4,10 +4,10 @@ import { getCurrentPositionAsync, useForegroundPermissions, PermissionStatus } f
 import { Colors } from "../../constants/colors";
 import OutlineButton from "../ui/OutlineButton";
 import { useEffect, useState } from "react";
-import { getMapPreview } from "../../util/location";
+import { getAddress, getMapPreview } from "../../util/location";
 
-const LocationPicker = () => {
-    const [pickedLocation, setPickedLocation] = useState()
+const LocationPicker = ({ onPickLocation }) => {
+    const [pickedLocation, setPickedLocation] = useState();
 
     const isFocused = useIsFocused();
     const navigation = useNavigation();
@@ -15,14 +15,22 @@ const LocationPicker = () => {
 
     const [locationPermissionsInfo, requestLocationPermission] = useForegroundPermissions();
 
-
-
     useEffect(() => {
         if (isFocused && route.params) {
             const mapPickedLocation = { lat: route.params.pickedLat, lng: route.params.pickedLng }
             setPickedLocation(mapPickedLocation)
         }
     }, [route, isFocused])
+
+    useEffect(() => {
+        const handleLocation = async () => {
+            if (pickedLocation) {
+                const address = await getAddress(pickedLocation.lat, pickedLocation.lng)
+                onPickLocation({ ...pickedLocation, address: address })
+            }
+        }
+        handleLocation();
+    }, [pickedLocation, onPickLocation])
 
     const verifyPermissions = async () => {
         if (locationPermissionsInfo.status === PermissionStatus.UNDETERMINED) {
@@ -87,7 +95,6 @@ export default LocationPicker;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingBottom: 32
     },
     mapPreview: {
         width: "100%",
