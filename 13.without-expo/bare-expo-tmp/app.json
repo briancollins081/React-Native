@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "bare-expo-tmp",
+    "slug": "bare-expo-tmp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
